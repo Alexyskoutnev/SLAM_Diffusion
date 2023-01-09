@@ -1,0 +1,41 @@
+appdirs @ file:///home/conda/feedstock_root/build_artifacts/appdirs_1603108395799/work
+blobfile==2.0.0
+brotlipy @ file:///Users/runner/miniforge3/conda-bld/brotlipy_1666764759924/work
+certifi==2022.12.7
+cffi @ file:///Users/runner/miniforge3/conda-bld/cffi_1671179893800/work
+charset-normalizer @ file:///home/conda/feedstock_root/build_artifacts/charset-normalizer_1661170624537/work
+contourpy @ file:///Users/runner/miniforge3/conda-bld/contourpy_1667248275324/work
+cryptography @ file:///Users/runner/miniforge3/conda-bld/cryptography-split_1672673354240/work
+cycler @ file:///home/conda/feedstock_root/build_artifacts/cycler_1635519461629/work
+filelock==3.9.0
+fonttools @ file:///Users/runner/miniforge3/conda-bld/fonttools_1666827370036/work
+h5py==3.7.0
+idna @ file:///home/conda/feedstock_root/build_artifacts/idna_1663625384323/work
+kiwisolver @ file:///Users/runner/miniforge3/conda-bld/kiwisolver_1666805765141/work
+lxml==4.9.2
+matplotlib @ file:///Users/runner/miniforge3/conda-bld/matplotlib-suite_1667504998372/work
+mpi4py==3.1.4
+munkres==1.1.4
+numpy @ file:///Users/runner/miniforge3/conda-bld/numpy_1672415800930/work
+opencv-python==4.6.0
+packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1670530880680/work
+Pillow @ file:///Users/runner/miniforge3/conda-bld/pillow_1672675413961/work
+pooch @ file:///home/conda/feedstock_root/build_artifacts/pooch_1643032624649/work
+pycparser @ file:///home/conda/feedstock_root/build_artifacts/pycparser_1636257122734/work
+pycryptodomex==3.16.0
+pyOpenSSL @ file:///home/conda/feedstock_root/build_artifacts/pyopenssl_1672659226110/work
+pyparsing @ file:///home/conda/feedstock_root/build_artifacts/pyparsing_1652235407899/work
+PySocks @ file:///home/conda/feedstock_root/build_artifacts/pysocks_1661604839144/work
+python-dateutil @ file:///home/conda/feedstock_root/build_artifacts/python-dateutil_1626286286081/work
+requests @ file:///home/conda/feedstock_root/build_artifacts/requests_1661872987712/work
+scipy==1.10.0
+six @ file:///home/conda/feedstock_root/build_artifacts/six_1620240208055/work
+-e git+ssh://git@github.com/Alexyskoutnev/SLAM_Diffusion.git@c61396dd0bab9a01d3461364d3fbdf0e9ba693e6#egg=SLAM_diffusion
+torch==1.13.1
+torchaudio==0.13.1
+torchvision==0.14.1
+tornado @ file:///Users/runner/miniforge3/conda-bld/tornado_1666788685513/work
+tqdm==4.64.1
+typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1665144421445/work
+unicodedata2 @ file:///Users/runner/miniforge3/conda-bld/unicodedata2_1667239979860/work
+urllib3 @ file:///home/conda/feedstock_root/build_artifacts/urllib3_1669259737463/work
