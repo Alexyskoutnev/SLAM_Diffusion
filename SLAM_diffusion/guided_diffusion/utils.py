@@ -6,7 +6,7 @@ import numpy as np
 import torch
 from torchvision import transforms
 
-IMG_SIZE = 64
+IMG_SIZE = 128
 device = "cpu"
 
 SAMPLE_PATH = "./samples/"

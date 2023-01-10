@@ -526,8 +526,6 @@ class GaussianDiffusion:
 
         for i in indices:
             t = th.tensor([i] * shape[0], device=device)
-            print(f"t : {i}")
-            breakpoint()
             with th.no_grad():
                 out = self.p_sample(
                     model,
@@ -543,7 +541,6 @@ class GaussianDiffusion:
                 
             ########REMOVE IN FUTURE TESTING SAMPLING###########
             if (i + 1) % 100 == 0 or i + 1 == 1:
-                print(f"append  {i} ")
                 frames.append(img)
             if len(frames) == 10:
                 save_plot_image(frames, i)

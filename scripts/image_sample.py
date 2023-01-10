@@ -5,10 +5,12 @@ numpy array. This can be used to produce samples for FID evaluation.
 
 import argparse
 import os
+import datetime
 
 import numpy as np
 import torch as th
 import torch.distributed as dist
+import matplotlib.pyplot as plt
 
 from SLAM_diffusion.guided_diffusion import dist_util, logger
 from SLAM_diffusion.guided_diffusion.script_util import (
@@ -42,9 +44,9 @@ def main():
 
     logger.log("sampling...")
     all_images = []
+    frames = []
     all_labels = []
     while len(all_images) * args.batch_size < args.num_samples:
-        print("Work")
         model_kwargs = {}
         if args.class_cond:
             classes = th.randint(
@@ -54,22 +56,22 @@ def main():
         sample_fn = (
             diffusion.p_sample_loop if not args.use_ddim else diffusion.ddim_sample_loop
         )
-        # breakpoint()
         sample = sample_fn(
             model,
             (args.batch_size, 3, args.image_size, args.image_size),
             clip_denoised=args.clip_denoised,
             model_kwargs=model_kwargs,
         )
-        breakpoint()
         sample = ((sample + 1) * 127.5).clamp(0, 255).to(th.uint8)
         sample = sample.permute(0, 2, 3, 1)
         sample = sample.contiguous()
 
+        frame = th.squeeze(sample.detach().cpu()).numpy()
+        frames.append(frame)
+
         gathered_samples = [th.zeros_like(sample) for _ in range(dist.get_world_size())]
         dist.all_gather(gathered_samples, sample)  # gather not supported with NCCL
         all_images.extend([sample.cpu().numpy() for sample in gathered_samples])
-        breakpoint()
         if args.class_cond:
             gathered_labels = [
                 th.zeros_like(classes) for _ in range(dist.get_world_size())
@@ -91,6 +93,13 @@ def main():
             np.savez(out_path, arr, label_arr)
         else:
             np.savez(out_path, arr)
+        
+    for image in frames:
+        plt.figure()
+        plt.axis('off')
+        plt.imshow(image)
+        plt.savefig(os.path.join(SAMPLE_PATH, datetime.datetime.now().strftime("SAMPLE_IMG_-%Y-%m-%d-%H-%M-%S-%f") + ".png"), bbox_inches='tight')
+        plt.close()
 
     dist.barrier()
     logger.log("sampling complete")
@@ -100,9 +109,9 @@ def create_argparser():
     defaults = dict(
         clip_denoised=True,
         num_samples=10,
-        batch_size=2,
+        batch_size=1,
         use_ddim=False,
-        model_path="models/model/model000050.pt",
+        model_path="models/model/model001000_128_128.pt",
     )
     defaults.update(model_and_diffusion_defaults())
     parser = argparse.ArgumentParser()
