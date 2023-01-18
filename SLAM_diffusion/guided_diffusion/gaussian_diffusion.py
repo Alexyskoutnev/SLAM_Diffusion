@@ -10,10 +10,12 @@ import math
 
 import numpy as np
 import torch as th
+from torchvision import transforms
+import matplotlib.pyplot as plt
 
 from .nn import mean_flat
 from .losses import normal_kl, discretized_gaussian_log_likelihood
-from .utils import save_plot_image
+from .utils import save_plot_image, show_tensor_image
 
 
 def get_named_beta_schedule(schedule_name, num_diffusion_timesteps):
@@ -401,7 +403,7 @@ class GaussianDiffusion:
         clip_denoised=True,
         denoised_fn=None,
         cond_fn=None,
-        model_kwargs=None,
+        model_kwargs=None
     ):
         """
         Sample x_{t-1} from the model at the given timestep.
@@ -420,6 +422,7 @@ class GaussianDiffusion:
                  - 'sample': a random sample from the model.
                  - 'pred_xstart': a prediction of x_0.
         """
+       
         out = self.p_mean_variance(
             model,
             x,
@@ -436,7 +439,9 @@ class GaussianDiffusion:
             out["mean"] = self.condition_mean(
                 cond_fn, out, x, t, model_kwargs=model_kwargs
             )
+            
         sample = out["mean"] + nonzero_mask * th.exp(0.5 * out["log_variance"]) * noise
+    
         return {"sample": sample, "pred_xstart": out["pred_xstart"]}
 
     def p_sample_loop(
@@ -450,6 +455,8 @@ class GaussianDiffusion:
         model_kwargs=None,
         device=None,
         progress=False,
+        inpaint_image=None,
+        inpaint_mask=None
     ):
         """
         Generate samples from the model.
@@ -481,6 +488,9 @@ class GaussianDiffusion:
             model_kwargs=model_kwargs,
             device=device,
             progress=progress,
+            inpaint_image=inpaint_image,
+            inpaint_mask=inpaint_mask
+
         ):
             final = sample
         return final["sample"]
@@ -496,6 +506,8 @@ class GaussianDiffusion:
         model_kwargs=None,
         device=None,
         progress=False,
+        inpaint_image=None,
+        inpaint_mask=None
     ):
         """
         Generate samples from the model and yield intermediate samples from
@@ -513,8 +525,6 @@ class GaussianDiffusion:
         else:
             img = th.randn(*shape, device=device)
         indices = list(range(self.num_timesteps))[::-1]
-
-        # progress = True
         
         if progress:
             # Lazy import so that we don't depend on tqdm.
@@ -523,9 +533,22 @@ class GaussianDiffusion:
             indices = tqdm(indices)
 
         frames = [] #REMOVE
+        
+        if inpaint_image is not None:
+            inpaint_image = _4Dto3D(inpaint_image)
+            inpaint_image = th.unsqueeze(_transform(inpaint_image), dim = 0)
+            inpaint_mask = _4Dto3D(inpaint_mask)
+            inpaint_mask = th.unsqueeze(_transform_mask(inpaint_mask), dim = 0)
 
         for i in indices:
+            print(f"{i} : ")
             t = th.tensor([i] * shape[0], device=device)
+            if inpaint_image is not None:
+                noised_inpaint_image = self.q_sample(inpaint_image, t=t, noise=noise)
+                img = (img * inpaint_mask) + noised_inpaint_image * ~inpaint_mask
+                if i == 1:
+                    breakpoint()
+                
             with th.no_grad():
                 out = self.p_sample(
                     model,
@@ -536,15 +559,27 @@ class GaussianDiffusion:
                     cond_fn=cond_fn,
                     model_kwargs=model_kwargs,
                 )
-                yield out
+                if i == 0:
+                    if inpaint_image is not None:
+                        breakpoint()
+                        out["sample"] = (img * inpaint_mask) + (inpaint_image * ~inpaint_mask)
+                        yield out
+                    else:
+                        yield out
+                else:
+                    yield out
                 img = out["sample"]
+            
+           
                 
-            ########REMOVE IN FUTURE TESTING SAMPLING###########
-            if (i + 1) % 100 == 0 or i + 1 == 1:
-                frames.append(img)
-            if len(frames) == 10:
-                save_plot_image(frames, i)
-                frames = []
+                
+                
+            # ########REMOVE IN FUTURE TESTING SAMPLING###########
+            # if (i + 1) % 100 == 0 or i + 1 == 1:
+            #     frames.append(img)
+            # if len(frames) == 10:
+            #     save_plot_image(frames, i)
+            #     frames = []
 
     def ddim_sample(
         self,
@@ -918,3 +953,29 @@ def _extract_into_tensor(arr, timesteps, broadcast_shape):
     while len(res.shape) < len(broadcast_shape):
         res = res[..., None]
     return res.expand(broadcast_shape)
+
+def _4Dto3D(img):
+    return img[:,:,:3]
+
+def _transform(img):
+    
+    def normalize(frame):
+        return frame * 2 - 1
+    
+    data_transform = transforms.Compose([
+                       transforms.ToPILImage(), \
+                       transforms.Resize((64, 64)), \
+                       transforms.RandomHorizontalFlip(), \
+                       transforms.ToTensor(), ])
+    img = data_transform(img)
+    return normalize(img)
+
+def _transform_mask(img):
+    data_transform = transforms.Compose([
+                       transforms.ToPILImage(), \
+                       transforms.Resize((64, 64)), \
+                       transforms.ToTensor(), ])
+    img = data_transform(img).bool()
+    return img
+    
+    

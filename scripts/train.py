@@ -62,16 +62,16 @@ def main():
 
 def create_argparser():
     defaults = dict(
-        data_dir="./data/hdf5/hdf5_128",
+        data_dir="./data/hdf5/hdf5_64",
         schedule_sampler="uniform",
         lr=1e-4,
         weight_decay=0.0,
         lr_anneal_steps=0,
-        batch_size=32,
+        batch_size=4,
         microbatch=-1,  # -1 disables microbatches
         ema_rate="0.9999",  # comma-separated list of EMA values
         log_interval=100,
-        save_interval=1000,
+        save_interval=500,
         resume_checkpoint="",
         use_fp16=False,
         fp16_scale_growth=1e-3,

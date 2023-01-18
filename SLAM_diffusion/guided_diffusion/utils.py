@@ -38,3 +38,4 @@ def show_tensor_image(image):
     if len(image.shape) == 4:
         image = image[0, :, :, :]
     plt.imshow(reverse_transforms(image))
+    

@@ -11,6 +11,9 @@ import numpy as np
 import torch as th
 import torch.distributed as dist
 import matplotlib.pyplot as plt
+from matplotlib import image 
+
+from PIL import Image
 
 from SLAM_diffusion.guided_diffusion import dist_util, logger
 from SLAM_diffusion.guided_diffusion.script_util import (
@@ -26,6 +29,9 @@ SAMPLE_PATH = "./samples"
 
 def main():
     args = create_argparser().parse_args()
+    
+    inpaint_image = np.asarray(Image.open("./samples/test_img_1_200.png"))
+    inpaint_mask = np.asarray(Image.open("./samples/image_mask_4.png"))
 
     dist_util.setup_dist()
     logger.configure(SAMPLE_PATH)
@@ -61,6 +67,8 @@ def main():
             (args.batch_size, 3, args.image_size, args.image_size),
             clip_denoised=args.clip_denoised,
             model_kwargs=model_kwargs,
+            inpaint_image=inpaint_image,
+            inpaint_mask=inpaint_mask
         )
         sample = ((sample + 1) * 127.5).clamp(0, 255).to(th.uint8)
         sample = sample.permute(0, 2, 3, 1)
@@ -108,10 +116,10 @@ def main():
 def create_argparser():
     defaults = dict(
         clip_denoised=True,
-        num_samples=10,
+        num_samples=1,
         batch_size=1,
         use_ddim=False,
-        model_path="models/model/model001000_128_128.pt",
+        model_path="./models/model/model003000.pt",
     )
     defaults.update(model_and_diffusion_defaults())
     parser = argparse.ArgumentParser()

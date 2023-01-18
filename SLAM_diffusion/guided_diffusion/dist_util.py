@@ -70,7 +70,6 @@ def load_state_dict(path, **kwargs):
         data = bytes()
         for _ in range(num_chunks):
             data += MPI.COMM_WORLD.bcast(None)
-
     return th.load(io.BytesIO(data), **kwargs)
 
 
