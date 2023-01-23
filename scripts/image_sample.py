@@ -30,8 +30,10 @@ SAMPLE_PATH = "./samples"
 def main():
     args = create_argparser().parse_args()
     
-    inpaint_image = np.asarray(Image.open("./samples/test_img_1_200.png"))
-    inpaint_mask = np.asarray(Image.open("./samples/image_mask_4.png"))
+    # inpaint_image = np.asarray(Image.open("./samples/test_img_1_200.png"))
+    # inpaint_mask = np.asarray(Image.open("./samples/image_mask_4.png"))
+    inpaint_image = None
+    inpaint_mask = None
 
     dist_util.setup_dist()
     logger.configure(SAMPLE_PATH)

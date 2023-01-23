@@ -1,0 +1,6 @@
+Logging to ./samples
+creating model and diffusion...
+sampling...
+created 1 samples
+saving to ./samples/samples_1x64x64x3.npz
+sampling complete
